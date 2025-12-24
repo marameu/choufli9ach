@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Choufli_9ach | Boutique Officielle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600&family=Playfair+Display:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="grain"></div>
+    <div class="mobile-banner">
+      <a href="#collections">Shop Now</a>
+    </div>
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
+    <header>
+      <nav class="nav" aria-label="Navigation principale">
+        <div class="logo">
+          <img src="Produit/Produit/Logo%20black.png" alt="Logo Choufli_9ach" />
+          <span>Choufli_9ach</span>
+        </div>
+        <div class="nav-links">
+          <a href="#collections">Collections</a>
+          <a href="#story">Studio</a>
+          <a class="nav-cart" href="#panier">Panier <span class="cart-count" id="cartCount" aria-live="polite">0</span></a>
+          <a href="#contact">Contact</a>
+        </div>
+        <a class="cta" href="#collections">Shop Now</a>
+      </nav>
+    </header>
+
+    <main id="contenu">
+      <section class="hero">
+        <div class="hero-content">
+          <h1>Hoodies premium qui racontent une histoire.</h1>
+          <p>
+            Choufli_9ach lance une ligne urbaine elegante, textile dense, coupes nettes,
+            couleurs pensees pour durer. Un univers sobre, confiant et memorisable.
+          </p>
+          <div class="hero-actions">
+            <a class="cta" href="#collections">Decouvrir la collection</a>
+            <a class="btn-outline" href="#story">Notre manifeste</a>
+          </div>
+        </div>
+        <div class="hero-card">
+          <img
+            src="Produit/Produit/Hoodie%20Promise%20Black/Hoodie%20Promise%20Black.png"
+            alt="Hoodie Promise Black"
+            fetchpriority="high"
+            decoding="async"
+          />
+          <span>Edition Signature</span>
+          <h3>Promise Black</h3>
+        </div>
+      </section>
+
+      <section class="section" id="collections">
+        <div class="section-header">
+          <h2>Collection Promise</h2>
+          <p>Deux pieces iconiques, finitions propres, couture solide, touche moderne.</p>
+        </div>
+        <div class="products">
+          <article class="product-card">
+            <img
+              src="Produit/Produit/Hoodie%20Promise%20Black/Hoodie%20Promise%20Black.png"
+              alt="Hoodie Promise Black"
+              loading="lazy"
+              decoding="async"
+            />
+            <h3>Promise Black</h3>
+            <div class="product-meta">
+              <span>189 TND</span>
+              <span class="badge">Noir profond</span>
+            </div>
+            <button class="btn-cart" type="button" data-product="Promise Black" data-price="189">
+              Ajouter au panier
+            </button>
+          </article>
+          <article class="product-card">
+            <img
+              src="Produit/Produit/Hoodie%20Promise%20Beige/Hoodie%20promise%20beige.png"
+              alt="Hoodie Promise Beige"
+              loading="lazy"
+              decoding="async"
+            />
+            <h3>Promise Beige</h3>
+            <div class="product-meta">
+              <span>189 TND</span>
+              <span class="badge">Beige sable</span>
+            </div>
+            <button class="btn-cart" type="button" data-product="Promise Beige" data-price="189">
+              Ajouter au panier
+            </button>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="story">
+        <div class="story">
+          <div>
+            <h3>Studio Choufli_9ach</h3>
+            <p>
+              Une marque nee pour marquer les esprits. Chaque hoodie est pense comme une piece
+              forte, sans surplus, avec un design epure et un confort innegociable.
+            </p>
+          </div>
+          <div class="story-list">
+            <span>Textile epais 400g</span>
+            <span>Finitions premium et coutures renforcees</span>
+            <span>Palette minimaliste, facile a associer</span>
+            <span>Quantites limitees pour garder l exclusivite</span>
+          </div>
+          <div class="highlight">
+            <h4>Drop actuel</h4>
+            <p>
+              Disponible maintenant. Livraison rapide, emballage soignee, service client reactive.
+            </p>
+            <a class="btn-outline" href="#contact">Contacter</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="panier">
+        <div class="section-header">
+          <h2>Votre panier</h2>
+          <p>Finalise ta commande en quelques clics. Paiement a la livraison.</p>
+        </div>
+        <div class="cart-grid">
+          <div class="cart-panel">
+            <h3>Articles</h3>
+            <div class="cart-items" id="cartItems">
+              <p class="cart-empty">Ton panier est vide pour le moment.</p>
+            </div>
+            <div class="cart-total">
+              <span>Total</span>
+              <strong id="cartTotal" aria-live="polite">0 TND</strong>
+            </div>
+            <p class="cart-note">Tailles disponibles: S/M, L, XL.</p>
+          </div>
+          <form class="checkout-form" id="checkoutForm">
+            <h3>Finaliser la commande</h3>
+            <label>
+              Nom complet
+              <input type="text" name="name" placeholder="Ton nom" autocomplete="name" required />
+            </label>
+            <label>
+              Telephone
+              <input
+                type="tel"
+                name="phone"
+                placeholder="+216 xx xxx xxx"
+                autocomplete="tel"
+                inputmode="tel"
+                pattern="(?:\\+216\\s?)?[0-9]{8}"
+                title="Entrez un numero valide (8 chiffres, avec +216 optionnel)."
+                required
+              />
+            </label>
+            <label>
+              Adresse de livraison
+              <input
+                type="text"
+                name="address"
+                placeholder="Ville, rue, details"
+                autocomplete="street-address"
+                required
+              />
+            </label>
+            <button class="cta" type="submit">Confirmer</button>
+            <p class="cart-note">Paiement a la livraison uniquement.</p>
+          </form>
+        </div>
+      </section>
+
+      <section class="section" id="contact">
+        <div class="section-header">
+          <h2>Reste en contact</h2>
+          <p>Pour les commandes, collaborations ou points de vente, ecris nous.</p>
+        </div>
+        <div class="products">
+          <article class="product-card">
+            <h3>Contact</h3>
+            <p class="product-meta">Email: bonjour@choufli9ach.com</p>
+            <p class="product-meta">Instagram: @choufli_9ach</p>
+            <p class="product-meta">WhatsApp: +216 00 000 000</p>
+          </article>
+          <article class="product-card">
+            <h3>Livraison</h3>
+            <p class="product-meta">Paiement a la livraison disponible</p>
+            <p class="product-meta">Retour sous 7 jours</p>
+          </article>
+          <article class="product-card">
+            <h3>Stock limite</h3>
+            <p class="product-meta">Chaque drop est numerote</p>
+            <p class="product-meta">Reservez votre piece</p>
+            <p class="product-meta">Tailles disponibles: S/M, L, XL</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      Choufli_9ach - Boutique Officielle
+    </footer>
+  </div>
+  <script src="script.js" defer></script>
+</body>
+</html>
