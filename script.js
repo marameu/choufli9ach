@@ -33,7 +33,8 @@
         <h4>${item.name}</h4>
         <div class="cart-controls">
           <select data-index="${index}" class="cart-size">
-            <option value="S/M" ${item.size === "S/M" ? "selected" : ""}>S/M</option>
+            <option value="S" ${item.size === "S" ? "selected" : ""}>S</option>
+            <option value="M" ${item.size === "M" ? "selected" : ""}>M</option>
             <option value="L" ${item.size === "L" ? "selected" : ""}>L</option>
             <option value="XL" ${item.size === "XL" ? "selected" : ""}>XL</option>
           </select>
@@ -53,7 +54,7 @@
     button.addEventListener("click", () => {
       const name = button.dataset.product;
       const price = Number(button.dataset.price) || 0;
-      cartItems.push({ name, price, size: "S/M" });
+      cartItems.push({ name, price, size: "S" });
       renderCart();
       document.querySelector("#panier")?.scrollIntoView({ behavior: "smooth" });
     });
