@@ -11,7 +11,8 @@ import base64
 
 
 BASE_DIR = Path(__file__).resolve().parent
-DB_PATH = BASE_DIR / "orders.db"
+DATA_DIR = Path(os.environ.get("DATA_DIR", str(BASE_DIR)))
+DB_PATH = Path(os.environ.get("DB_PATH", str(DATA_DIR / "orders.db")))
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin")
 
 
@@ -118,6 +119,7 @@ def render_admin_page(orders: list[dict]) -> bytes:
 
 
 def init_db() -> None:
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(DB_PATH) as conn:
         conn.execute(
             """

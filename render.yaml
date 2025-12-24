@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: choufli9ach
+    env: python
+    plan: free
+    buildCommand: ""
+    startCommand: "python server.py"
+    autoDeploy: true
+    disk:
+      name: data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: DATA_DIR
+        value: /var/data
+      - key: ADMIN_PASSWORD
+        sync: false
