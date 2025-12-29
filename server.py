@@ -376,6 +376,26 @@ class RequestHandler(BaseHTTPRequestHandler):
     def do_OPTIONS(self) -> None:
         self._set_headers(HTTPStatus.NO_CONTENT)
 
+    def do_HEAD(self) -> None:
+        if self.path.startswith("/api/orders"):
+            self._set_headers(HTTPStatus.OK, "application/json")
+            return
+
+        if self.path.startswith("/admin"):
+            self._set_headers(HTTPStatus.OK, "text/html; charset=utf-8")
+            return
+
+        path = unquote(self.path.split("?", 1)[0])
+        if path == "/":
+            path = "/index.html"
+        file_path = (BASE_DIR / path.lstrip("/")).resolve()
+        if not str(file_path).startswith(str(BASE_DIR)) or not file_path.exists():
+            self._set_headers(HTTPStatus.NOT_FOUND, "text/plain; charset=utf-8")
+            return
+
+        _, mime_type = read_static_file(file_path)
+        self._set_headers(HTTPStatus.OK, mime_type)
+
     def do_GET(self) -> None:
         if self.path.startswith("/api/orders"):
             self.handle_list_orders()
