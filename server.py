@@ -1,4 +1,5 @@
 import json
+import html
 import mimetypes
 import os
 import sqlite3
@@ -6,7 +7,7 @@ from datetime import datetime, timezone
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
-from urllib.parse import unquote
+from urllib.parse import unquote, parse_qs
 import base64
 
 
@@ -35,16 +36,22 @@ def render_admin_page(orders: list[dict]) -> bytes:
             f"{item.get('name', '')} ({item.get('size', '')})"
             for item in order.get("items", [])
         )
+        safe_items = html.escape(items)
         rows.append(
             f"""
             <tr>
               <td>{order["id"]}</td>
-              <td>{order["name"]}</td>
-              <td>{order["phone"]}</td>
-              <td>{order["address"]}</td>
-              <td>{items}</td>
+              <td>{html.escape(order["name"])}</td>
+              <td>{html.escape(order["phone"])}</td>
+              <td>{html.escape(order["address"])}</td>
+              <td>{safe_items}</td>
               <td>{order["total"]} TND</td>
               <td>{order["created_at"]}</td>
+              <td>
+                <button class="action-btn" type="button" data-delete="{order["id"]}">
+                  Supprimer
+                </button>
+              </td>
             </tr>
             """
         )
@@ -92,6 +99,60 @@ def render_admin_page(orders: list[dict]) -> bytes:
         tr:last-child td {{
           border-bottom: none;
         }}
+        .action-btn {{
+          background: #1b1916;
+          color: #fff;
+          border: none;
+          padding: 6px 10px;
+          border-radius: 999px;
+          font-size: 0.75rem;
+          letter-spacing: 0.06rem;
+          text-transform: uppercase;
+          cursor: pointer;
+        }}
+        .modal-overlay {{
+          position: fixed;
+          inset: 0;
+          background: rgba(10, 8, 6, 0.5);
+          display: none;
+          align-items: center;
+          justify-content: center;
+          z-index: 100;
+        }}
+        .modal {{
+          background: #fff;
+          border-radius: 16px;
+          padding: 20px;
+          max-width: 360px;
+          width: calc(100% - 32px);
+          box-shadow: 0 20px 50px rgba(10, 8, 6, 0.2);
+          display: grid;
+          gap: 14px;
+        }}
+        .modal h2 {{
+          margin: 0;
+          font-size: 1.1rem;
+        }}
+        .modal-actions {{
+          display: flex;
+          gap: 10px;
+          justify-content: flex-end;
+        }}
+        .btn-cancel {{
+          background: #f4efe7;
+          border: none;
+          padding: 8px 12px;
+          border-radius: 999px;
+          cursor: pointer;
+        }}
+        .btn-danger {{
+          background: #1b1916;
+          color: #fff;
+          border: none;
+          padding: 8px 12px;
+          border-radius: 999px;
+          cursor: pointer;
+        }}
       </style>
     </head>
     <body>
@@ -106,12 +167,50 @@ def render_admin_page(orders: list[dict]) -> bytes:
             <th>Articles</th>
             <th>Total</th>
             <th>Date</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {''.join(rows) if rows else '<tr><td colspan="7">Aucune commande.</td></tr>'}
+          {''.join(rows) if rows else '<tr><td colspan="8">Aucune commande.</td></tr>'}
         </tbody>
       </table>
+      <div class="modal-overlay" id="confirmModal" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true">
+          <h2>Supprimer la commande ?</h2>
+          <p>Cette action est definitive.</p>
+          <form method="post" action="/admin/delete" id="deleteForm">
+            <input type="hidden" name="id" id="deleteId" value="" />
+            <div class="modal-actions">
+              <button class="btn-cancel" type="button" id="cancelDelete">Annuler</button>
+              <button class="btn-danger" type="submit">Supprimer</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <script>
+        const modal = document.getElementById("confirmModal");
+        const deleteId = document.getElementById("deleteId");
+        const cancelDelete = document.getElementById("cancelDelete");
+
+        document.querySelectorAll("[data-delete]").forEach((btn) => {{
+          btn.addEventListener("click", () => {{
+            deleteId.value = btn.dataset.delete;
+            modal.style.display = "flex";
+            modal.setAttribute("aria-hidden", "false");
+          }});
+        }});
+
+        const closeModal = () => {{
+          modal.style.display = "none";
+          modal.setAttribute("aria-hidden", "true");
+          deleteId.value = "";
+        }};
+
+        cancelDelete.addEventListener("click", closeModal);
+        modal.addEventListener("click", (event) => {{
+          if (event.target === modal) closeModal();
+        }});
+      </script>
     </body>
     </html>
     """
@@ -192,6 +291,14 @@ class RequestHandler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:
         if self.path.startswith("/api/orders"):
             self.handle_create_order()
+            return
+        if self.path.startswith("/admin/delete"):
+            if not is_authorized(self):
+                self.send_response(HTTPStatus.UNAUTHORIZED)
+                self.send_header("WWW-Authenticate", 'Basic realm="Admin"')
+                self.end_headers()
+                return
+            self.handle_delete_order()
             return
 
         self._set_headers(HTTPStatus.NOT_FOUND, "text/plain; charset=utf-8")
@@ -310,6 +417,30 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         self._set_headers(HTTPStatus.OK, "text/html; charset=utf-8")
         self.wfile.write(render_admin_page(orders))
+
+    def handle_delete_order(self) -> None:
+        content_length = int(self.headers.get("Content-Length", "0"))
+        raw_body = self.rfile.read(content_length) if content_length else b""
+        data = parse_qs(raw_body.decode("utf-8"))
+        order_id = data.get("id", [""])[0]
+        try:
+            order_id_int = int(order_id)
+        except (TypeError, ValueError):
+            self._set_headers(HTTPStatus.BAD_REQUEST, "text/plain; charset=utf-8")
+            self.wfile.write(b"Invalid order id")
+            return
+
+        try:
+            with sqlite3.connect(DB_PATH) as conn:
+                conn.execute("DELETE FROM orders WHERE id = ?", (order_id_int,))
+        except sqlite3.Error:
+            self._set_headers(HTTPStatus.INTERNAL_SERVER_ERROR, "text/plain; charset=utf-8")
+            self.wfile.write(b"Database error")
+            return
+
+        self.send_response(HTTPStatus.SEE_OTHER)
+        self.send_header("Location", "/admin")
+        self.end_headers()
 
 
 def main() -> None:
