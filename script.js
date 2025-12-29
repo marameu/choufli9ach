@@ -256,20 +256,32 @@
   }
 
   const orderEndpoints = [
-    "/api/orders",
-    "https://script.google.com/macros/s/AKfycbxssDv9ayTHWt2paeP6fBkpxVQnal6MBbbUbbAijqhCSuq6pMOtKEUIndmz-ZjmJ5if/exec",
+    {
+      url: "https://choufli9ach.onrender.com/api/orders",
+      mode: "cors",
+      allowOpaque: false,
+    },
+    {
+      url: "https://script.google.com/macros/s/AKfycbxssDv9ayTHWt2paeP6fBkpxVQnal6MBbbUbbAijqhCSuq6pMOtKEUIndmz-ZjmJ5if/exec",
+      mode: "no-cors",
+      allowOpaque: true,
+    },
   ];
 
   const sendOrder = async (payload) => {
     const results = await Promise.allSettled(
-      orderEndpoints.map(async (url) => {
-        const response = await fetch(url, {
+      orderEndpoints.map(async (endpoint) => {
+        const response = await fetch(endpoint.url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
+          mode: endpoint.mode,
         });
+        if (endpoint.allowOpaque && response.type === "opaque") {
+          return response;
+        }
         if (!response.ok) {
-          throw new Error(`Order failed: ${url}`);
+          throw new Error(`Order failed: ${endpoint.url}`);
         }
         return response;
       })
