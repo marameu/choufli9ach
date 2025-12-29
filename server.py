@@ -290,6 +290,54 @@ def render_admin_login(message: str | None = None) -> bytes:
     return html_page.encode("utf-8")
 
 
+def render_admin_error(message: str) -> bytes:
+    html_page = f"""
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>Admin - Erreur</title>
+      <style>
+        body {{
+          font-family: "Fira Sans", Arial, sans-serif;
+          background: #f7f1e7;
+          color: #1b1916;
+          display: grid;
+          place-items: center;
+          min-height: 100vh;
+          margin: 0;
+          padding: 24px;
+        }}
+        .card {{
+          background: #fff;
+          padding: 20px;
+          border-radius: 16px;
+          box-shadow: 0 20px 40px rgba(10, 8, 6, 0.12);
+          width: min(560px, 95vw);
+        }}
+        code {{
+          display: block;
+          background: #f1e7d8;
+          padding: 12px;
+          border-radius: 12px;
+          margin-top: 12px;
+          white-space: pre-wrap;
+        }}
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <h1>Erreur admin</h1>
+        <p>Une erreur s'est produite.</p>
+        <code>{html.escape(message)}</code>
+      </div>
+    </body>
+    </html>
+    """
+    return html_page.encode("utf-8")
+
+
 def init_db() -> None:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(DB_PATH) as conn:
@@ -465,27 +513,30 @@ class RequestHandler(BaseHTTPRequestHandler):
                     LIMIT 100
                     """
                 ).fetchall()
-        except sqlite3.Error:
-            self._set_headers(HTTPStatus.INTERNAL_SERVER_ERROR, "text/plain; charset=utf-8")
-            self.wfile.write(b"Database error")
-            return
 
-        orders = []
-        for row in rows:
-            orders.append(
-                {
-                    "id": row[0],
-                    "name": row[1],
-                    "phone": row[2],
-                    "address": row[3],
-                    "items": json.loads(row[4]),
-                    "total": row[5],
-                    "created_at": row[6],
-                }
-            )
+            orders = []
+            for row in rows:
+                try:
+                    items = json.loads(row[4]) if row[4] else []
+                except json.JSONDecodeError:
+                    items = []
+                orders.append(
+                    {
+                        "id": row[0],
+                        "name": row[1],
+                        "phone": row[2],
+                        "address": row[3],
+                        "items": items,
+                        "total": row[5],
+                        "created_at": row[6],
+                    }
+                )
 
-        self._set_headers(HTTPStatus.OK, "text/html; charset=utf-8")
-        self.wfile.write(render_admin_page(orders, access_key))
+            self._set_headers(HTTPStatus.OK, "text/html; charset=utf-8")
+            self.wfile.write(render_admin_page(orders, access_key))
+        except Exception as exc:
+            self._set_headers(HTTPStatus.INTERNAL_SERVER_ERROR, "text/html; charset=utf-8")
+            self.wfile.write(render_admin_error(str(exc)))
 
     def handle_delete_order(self) -> None:
         content_length = int(self.headers.get("Content-Length", "0"))
