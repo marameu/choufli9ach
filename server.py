@@ -29,8 +29,13 @@ def is_authorized(handler: BaseHTTPRequestHandler) -> bool:
     return username == "admin" and password == ADMIN_PASSWORD
 
 
-def render_admin_page(orders: list[dict]) -> bytes:
+def render_admin_page(orders: list[dict], access_key: str | None = None) -> bytes:
     rows = []
+    key_input = (
+        f'<input type="hidden" name="key" value="{html.escape(access_key)}" />'
+        if access_key
+        else ""
+    )
     for order in orders:
         items = ", ".join(
             f"{item.get('name', '')} ({item.get('size', '')})"
@@ -180,6 +185,7 @@ def render_admin_page(orders: list[dict]) -> bytes:
           <p>Cette action est definitive.</p>
           <form method="post" action="/admin/delete" id="deleteForm">
             <input type="hidden" name="id" id="deleteId" value="" />
+            {key_input}
             <div class="modal-actions">
               <button class="btn-cancel" type="button" id="cancelDelete">Annuler</button>
               <button class="btn-danger" type="submit">Supprimer</button>
@@ -215,6 +221,73 @@ def render_admin_page(orders: list[dict]) -> bytes:
     </html>
     """
     return html.encode("utf-8")
+
+
+def render_admin_login(message: str | None = None) -> bytes:
+    note = f"<p>{html.escape(message)}</p>" if message else ""
+    html_page = f"""
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>Admin - Connexion</title>
+      <style>
+        body {{
+          font-family: "Fira Sans", Arial, sans-serif;
+          background: #f7f1e7;
+          color: #1b1916;
+          display: grid;
+          place-items: center;
+          min-height: 100vh;
+          margin: 0;
+        }}
+        .card {{
+          background: #fff;
+          padding: 24px;
+          border-radius: 16px;
+          box-shadow: 0 20px 40px rgba(10, 8, 6, 0.12);
+          width: min(360px, 90vw);
+        }}
+        label {{
+          display: grid;
+          gap: 8px;
+          margin: 16px 0;
+        }}
+        input {{
+          padding: 10px 12px;
+          border-radius: 10px;
+          border: 1px solid #e2d8c9;
+          font-size: 0.95rem;
+        }}
+        button {{
+          background: #1b1916;
+          color: #fff;
+          border: none;
+          padding: 10px 14px;
+          border-radius: 999px;
+          cursor: pointer;
+          text-transform: uppercase;
+          letter-spacing: 0.06rem;
+        }}
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <h1>Admin</h1>
+        {note}
+        <form method="get" action="/admin">
+          <label>
+            Mot de passe
+            <input type="password" name="key" autocomplete="current-password" required />
+          </label>
+          <button type="submit">Connexion</button>
+        </form>
+      </div>
+    </body>
+    </html>
+    """
+    return html_page.encode("utf-8")
 
 
 def init_db() -> None:
@@ -261,16 +334,13 @@ class RequestHandler(BaseHTTPRequestHandler):
             return
 
         if self.path.startswith("/admin"):
-            if not is_authorized(self):
-                self.send_response(HTTPStatus.UNAUTHORIZED)
-                self.send_header("Content-Type", "text/html; charset=utf-8")
-                self.send_header("WWW-Authenticate", 'Basic realm="Admin"')
-                self.end_headers()
-                self.wfile.write(
-                    b"<h1>Acces admin</h1><p>Identifiant: admin</p><p>Mot de passe: celui configure sur Render.</p>"
-                )
+            query = parse_qs(self.path.split("?", 1)[1]) if "?" in self.path else {}
+            access_key = query.get("key", [""])[0]
+            if is_authorized(self) or (access_key and access_key == ADMIN_PASSWORD):
+                self.handle_admin_page(access_key if access_key else None)
                 return
-            self.handle_admin_page()
+            self._set_headers(HTTPStatus.OK, "text/html; charset=utf-8")
+            self.wfile.write(render_admin_login())
             return
 
         path = unquote(self.path.split("?", 1)[0])
@@ -297,13 +367,6 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.handle_create_order()
             return
         if self.path.startswith("/admin/delete"):
-            if not is_authorized(self):
-                self.send_response(HTTPStatus.UNAUTHORIZED)
-                self.send_header("Content-Type", "text/plain; charset=utf-8")
-                self.send_header("WWW-Authenticate", 'Basic realm="Admin"')
-                self.end_headers()
-                self.wfile.write(b"Unauthorized")
-                return
             self.handle_delete_order()
             return
 
@@ -391,7 +454,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         self._set_headers(HTTPStatus.OK)
         self.wfile.write(json.dumps({"orders": orders}).encode("utf-8"))
 
-    def handle_admin_page(self) -> None:
+    def handle_admin_page(self, access_key: str | None = None) -> None:
         try:
             with sqlite3.connect(DB_PATH) as conn:
                 rows = conn.execute(
@@ -422,13 +485,18 @@ class RequestHandler(BaseHTTPRequestHandler):
             )
 
         self._set_headers(HTTPStatus.OK, "text/html; charset=utf-8")
-        self.wfile.write(render_admin_page(orders))
+        self.wfile.write(render_admin_page(orders, access_key))
 
     def handle_delete_order(self) -> None:
         content_length = int(self.headers.get("Content-Length", "0"))
         raw_body = self.rfile.read(content_length) if content_length else b""
         data = parse_qs(raw_body.decode("utf-8"))
         order_id = data.get("id", [""])[0]
+        key = data.get("key", [""])[0]
+        if not (is_authorized(self) or (key and key == ADMIN_PASSWORD)):
+            self._set_headers(HTTPStatus.UNAUTHORIZED, "text/plain; charset=utf-8")
+            self.wfile.write(b"Unauthorized")
+            return
         try:
             order_id_int = int(order_id)
         except (TypeError, ValueError):
