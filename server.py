@@ -61,7 +61,7 @@ def render_admin_page(orders: list[dict], access_key: str | None = None) -> byte
             """
         )
 
-    html = f"""
+    html_page = f"""
     <!DOCTYPE html>
     <html lang="fr">
     <head>
@@ -220,7 +220,7 @@ def render_admin_page(orders: list[dict], access_key: str | None = None) -> byte
     </body>
     </html>
     """
-    return html.encode("utf-8")
+    return html_page.encode("utf-8")
 
 
 def render_admin_login(message: str | None = None) -> bytes:
