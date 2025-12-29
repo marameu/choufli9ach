@@ -365,12 +365,24 @@ def read_static_file(path: Path) -> tuple[bytes, str]:
 class RequestHandler(BaseHTTPRequestHandler):
     server_version = "ChoufliAPI/0.1"
 
-    def _set_headers(self, status: int, content_type: str = "application/json") -> None:
+    def _set_headers(
+        self,
+        status: int,
+        content_type: str = "application/json",
+        no_cache: bool = False,
+    ) -> None:
         self.send_response(status)
         self.send_header("Content-Type", content_type)
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        if no_cache:
+            self.send_header(
+                "Cache-Control",
+                "no-store, no-cache, must-revalidate, max-age=0",
+            )
+            self.send_header("Pragma", "no-cache")
+            self.send_header("Expires", "0")
         self.end_headers()
 
     def do_OPTIONS(self) -> None:
@@ -382,7 +394,9 @@ class RequestHandler(BaseHTTPRequestHandler):
             return
 
         if self.path.startswith("/admin"):
-            self._set_headers(HTTPStatus.OK, "text/html; charset=utf-8")
+            self._set_headers(
+                HTTPStatus.OK, "text/html; charset=utf-8", no_cache=True
+            )
             return
 
         path = unquote(self.path.split("?", 1)[0])
@@ -407,7 +421,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             if is_authorized(self) or (access_key and access_key == ADMIN_PASSWORD):
                 self.handle_admin_page(access_key if access_key else None)
                 return
-            self._set_headers(HTTPStatus.OK, "text/html; charset=utf-8")
+            self._set_headers(HTTPStatus.OK, "text/html; charset=utf-8", no_cache=True)
             self.wfile.write(render_admin_login())
             return
 
@@ -552,10 +566,14 @@ class RequestHandler(BaseHTTPRequestHandler):
                     }
                 )
 
-            self._set_headers(HTTPStatus.OK, "text/html; charset=utf-8")
+            self._set_headers(HTTPStatus.OK, "text/html; charset=utf-8", no_cache=True)
             self.wfile.write(render_admin_page(orders, access_key))
         except Exception as exc:
-            self._set_headers(HTTPStatus.INTERNAL_SERVER_ERROR, "text/html; charset=utf-8")
+            self._set_headers(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                "text/html; charset=utf-8",
+                no_cache=True,
+            )
             self.wfile.write(render_admin_error(str(exc)))
 
     def handle_delete_order(self) -> None:
