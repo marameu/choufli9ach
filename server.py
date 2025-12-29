@@ -3,6 +3,9 @@ import html
 import mimetypes
 import os
 import sqlite3
+import urllib.error
+import urllib.parse
+import urllib.request
 from datetime import datetime, timezone
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -15,6 +18,8 @@ BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = Path(os.environ.get("DATA_DIR", str(BASE_DIR)))
 DB_PATH = Path(os.environ.get("DB_PATH", str(DATA_DIR / "orders.db")))
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin")
+SHEETS_URL = os.environ.get("SHEETS_URL", "").strip()
+SHEETS_KEY = os.environ.get("SHEETS_KEY", "").strip()
 
 
 def is_authorized(handler: BaseHTTPRequestHandler) -> bool:
@@ -53,7 +58,7 @@ def render_admin_page(orders: list[dict], access_key: str | None = None) -> byte
               <td>{order["total"]} TND</td>
               <td>{order["created_at"]}</td>
               <td>
-                <button class="action-btn" type="button" data-delete="{order["id"]}">
+                <button class="action-btn" type="button" data-delete="{order["id"]}" data-source="{order.get("source", "db")}">
                   Supprimer
                 </button>
               </td>
@@ -185,6 +190,7 @@ def render_admin_page(orders: list[dict], access_key: str | None = None) -> byte
           <p>Cette action est definitive.</p>
           <form method="post" action="/admin/delete" id="deleteForm">
             <input type="hidden" name="id" id="deleteId" value="" />
+            <input type="hidden" name="source" id="deleteSource" value="db" />
             {key_input}
             <div class="modal-actions">
               <button class="btn-cancel" type="button" id="cancelDelete">Annuler</button>
@@ -196,11 +202,13 @@ def render_admin_page(orders: list[dict], access_key: str | None = None) -> byte
       <script>
         const modal = document.getElementById("confirmModal");
         const deleteId = document.getElementById("deleteId");
+        const deleteSource = document.getElementById("deleteSource");
         const cancelDelete = document.getElementById("cancelDelete");
 
         document.querySelectorAll("[data-delete]").forEach((btn) => {{
           btn.addEventListener("click", () => {{
             deleteId.value = btn.dataset.delete;
+            deleteSource.value = btn.dataset.source || "db";
             modal.style.display = "flex";
             modal.setAttribute("aria-hidden", "false");
           }});
@@ -210,6 +218,7 @@ def render_admin_page(orders: list[dict], access_key: str | None = None) -> byte
           modal.style.display = "none";
           modal.setAttribute("aria-hidden", "true");
           deleteId.value = "";
+          deleteSource.value = "db";
         }};
 
         cancelDelete.addEventListener("click", closeModal);
@@ -360,6 +369,59 @@ def read_static_file(path: Path) -> tuple[bytes, str]:
     content = path.read_bytes()
     mime_type, _ = mimetypes.guess_type(path.name)
     return content, (mime_type or "application/octet-stream")
+
+
+def fetch_sheet_orders() -> list[dict]:
+    if not SHEETS_URL:
+        return []
+    params = {"mode": "list"}
+    if SHEETS_KEY:
+        params["key"] = SHEETS_KEY
+    url = f"{SHEETS_URL}?{urllib.parse.urlencode(params)}"
+    try:
+        with urllib.request.urlopen(url, timeout=8) as response:
+            data = json.loads(response.read().decode("utf-8"))
+    except (urllib.error.URLError, json.JSONDecodeError, UnicodeDecodeError):
+        return []
+    orders = data.get("orders")
+    if not isinstance(orders, list):
+        return []
+    normalized = []
+    for order in orders:
+        if not isinstance(order, dict):
+            continue
+        normalized.append(
+            {
+                "id": str(order.get("id", "")).strip(),
+                "name": str(order.get("name", "")).strip(),
+                "phone": str(order.get("phone", "")).strip(),
+                "address": str(order.get("address", "")).strip(),
+                "items": order.get("items") or [],
+                "total": order.get("total") or 0,
+                "created_at": str(order.get("created_at", "")).strip(),
+                "source": "sheet",
+            }
+        )
+    return normalized
+
+
+def delete_sheet_order(order_id: str) -> bool:
+    if not SHEETS_URL:
+        return False
+    payload = {"action": "delete", "id": order_id}
+    if SHEETS_KEY:
+        payload["key"] = SHEETS_KEY
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(
+        SHEETS_URL, data=data, headers={"Content-Type": "application/json"}, method="POST"
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=8) as response:
+            if response.status >= 400:
+                return False
+            return True
+    except urllib.error.URLError:
+        return False
 
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -563,11 +625,21 @@ class RequestHandler(BaseHTTPRequestHandler):
                         "items": items,
                         "total": row[5],
                         "created_at": row[6],
+                        "source": "db",
                     }
                 )
 
-            self._set_headers(HTTPStatus.OK, "text/html; charset=utf-8", no_cache=True)
-            self.wfile.write(render_admin_page(orders, access_key))
+            sheet_orders = fetch_sheet_orders()
+            combined = orders + sheet_orders
+            combined.sort(
+                key=lambda order: order.get("created_at", ""),
+                reverse=True,
+            )
+
+            self._set_headers(
+                HTTPStatus.OK, "text/html; charset=utf-8", no_cache=True
+            )
+            self.wfile.write(render_admin_page(combined, access_key))
         except Exception as exc:
             self._set_headers(
                 HTTPStatus.INTERNAL_SERVER_ERROR,
@@ -581,10 +653,22 @@ class RequestHandler(BaseHTTPRequestHandler):
         raw_body = self.rfile.read(content_length) if content_length else b""
         data = parse_qs(raw_body.decode("utf-8"))
         order_id = data.get("id", [""])[0]
+        source = data.get("source", ["db"])[0]
         key = data.get("key", [""])[0]
         if not (is_authorized(self) or (key and key == ADMIN_PASSWORD)):
             self._set_headers(HTTPStatus.UNAUTHORIZED, "text/plain; charset=utf-8")
             self.wfile.write(b"Unauthorized")
+            return
+        if source == "sheet":
+            if not delete_sheet_order(order_id):
+                self._set_headers(
+                    HTTPStatus.INTERNAL_SERVER_ERROR, "text/plain; charset=utf-8"
+                )
+                self.wfile.write(b"Failed to delete sheet order")
+                return
+            self.send_response(HTTPStatus.SEE_OTHER)
+            self.send_header("Location", "/admin")
+            self.end_headers()
             return
         try:
             order_id_int = int(order_id)
