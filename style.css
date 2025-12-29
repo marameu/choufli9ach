@@ -468,6 +468,18 @@ body.menu-open .menu-overlay {
   filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.12));
 }
 
+@media (max-width: 600px) {
+  .logo img {
+    width: clamp(110px, 36vw, 160px);
+    height: clamp(110px, 36vw, 160px);
+    margin-left: 0;
+  }
+
+  .nav {
+    gap: 16px;
+  }
+}
+
 .nav-links {
   display: flex;
   align-items: center;
