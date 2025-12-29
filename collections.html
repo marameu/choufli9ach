@@ -49,54 +49,41 @@
       </div>
     </header>
 
-    
+    <div class="back-link">
+      <a href="javascript:history.back()" aria-label="Retour a la page precedente">&larr; Retour</a>
+    </div>
 
     <main id="contenu">
-      <section class="welcome-banner" aria-label="Banniere d'accueil">
-        <div class="welcome-banner__content">
-          <p class="welcome-banner__eyebrow">Nouvelle collection</p>
-          <h2>Decouvre notre piece signature.</h2>
-          <p>Edition limitee, textile premium, coupe nette.</p>
-          <a class="cta" href="collections.html">Shop Now</a>
+      <section class="section" id="collections">
+        <div class="section-header">
+          <h2>Hoodies</h2>
+          <p>Une piece iconique, finitions propres, couture solide, touche moderne.</p>
         </div>
-      </section>
-
-      <section class="hero">
-        <div class="hero-content">
-          <h1>Hoodies premium qui racontent une histoire.</h1>
-          <p>
-            Choufli_9ach lance une ligne urbaine elegante, textile dense, coupes nettes,
-            couleurs pensees pour durer. Un univers sobre, confiant et memorisable.
-          </p>
-          <div class="hero-actions">
-            <a class="cta" href="collections.html">Decouvrir la collection</a>
-            <a class="btn-outline" href="story.html">Notre manifeste</a>
-          </div>
-        </div>
-        <div class="hero-gallery product-gallery--slider" aria-label="Galerie accueil">
-          <button class="gallery-nav gallery-prev" type="button" aria-label="Image precedente">&#8249;</button>
-          <div class="product-slider">
-            <div class="product-slide">
-              <img
-                src="Produit/Produit/model%20front.jpeg"
-                alt="Model front"
-                fetchpriority="high"
-                decoding="async"
-              />
+        <div class="products">
+          <article class="product-card product-card--clickable">
+            <div class="product-gallery">
+              <a class="product-image-link" href="product.html">
+                <img
+                  src="Produit/Produit/produit%20final%20front.jpeg"
+                  alt="Produit final front"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </a>
             </div>
-            <div class="product-slide">
-              <img
-                src="Produit/Produit/model%20back.jpeg"
-                alt="Model back"
-                fetchpriority="high"
-                decoding="async"
-              />
+            <h3 class="product-title">&#x1d4af;&#x1d4b0;&#x1d4a9;&#x2110;&#x1d4ae;&#x2110;&#x1d4a9;&#x1d4aa;&#x20;&#x2d;&#x20;&#x1d4af;&#x1d4bd;&#x212f;&#x20;&#x212c;&#x2134;&#x1d4c8;&#x1d4c8;&#x1d4c5;&#x1d4be;&#x212f;&#x1d4b8;&#x212f;</h3>
+            <div class="product-meta">
+              <span>99 TND</span>
+              <span class="badge">Noir profond</span>
             </div>
-          </div>
-          <button class="gallery-nav gallery-next" type="button" aria-label="Image suivante">&#8250;</button>
+            <button class="btn-cart" type="button" data-product="TUNISINO - The Bosspiece" data-price="99">
+              Ajouter au panier
+            </button>
+          </article>
         </div>
       </section>
     </main>
+    
 
     <section class="section" id="contact">
         <div class="section-header">

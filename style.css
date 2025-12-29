@@ -26,6 +26,7 @@ body {
   background: radial-gradient(circle at 10% 20%, #f7f1e7 0%, #f1e7d8 35%, #ece2d3 55%, #f8f3ed 100%);
   min-height: 100vh;
   overflow-x: hidden;
+  font-size: clamp(0.95rem, 0.9rem + 0.3vw, 1.05rem);
 }
 
 a {
@@ -79,6 +80,7 @@ a:focus-visible {
 .page {
   position: relative;
   isolation: isolate;
+  min-height: 100vh;
 }
 
 .grain {
@@ -117,28 +119,351 @@ header {
 }
 
 .nav {
-  max-width: 1200px;
+  max-width: min(1200px, 92vw);
   margin: 0 auto;
-  padding: 18px 24px;
+  padding: clamp(14px, 1.5vw, 18px) clamp(16px, 2.5vw, 24px);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+  flex-wrap: wrap;
 }
+
+.back-link {
+  max-width: min(1200px, 92vw);
+  margin: 12px auto 0;
+  padding: 0 clamp(16px, 2.5vw, 24px);
+}
+
+.back-link a {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: #0b0b0c;
+  color: #fff;
+  font-family: "Fira Sans", "Helvetica Neue", sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.12rem;
+  text-transform: uppercase;
+  box-shadow: var(--shadow);
+}
+
+@media (max-width: 600px) {
+  .back-link {
+    margin-top: 8px;
+    padding: 0 16px;
+  }
+
+  .back-link a {
+    padding: 8px 12px;
+    font-size: 0.7rem;
+    letter-spacing: 0.1rem;
+  }
+}
+
+.menu-toggle {
+  width: clamp(44px, 5vw, 54px);
+  height: clamp(44px, 5vw, 54px);
+  border: none;
+  background: var(--coal);
+  border-radius: 999px;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  padding: 0;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+
+@media (min-width: 901px) {
+  .menu-toggle {
+    display: none;
+  }
+}
+
+.menu-toggle span {
+  display: block;
+  width: clamp(20px, 2.4vw, 26px);
+  height: 2px;
+  background: #fff;
+  border-radius: 999px;
+  margin: 0 auto;
+}
+
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 8, 6, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 14;
+}
+
+.menu-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: min(240px, 70vw);
+  background: rgba(20, 18, 16, 0.82);
+  color: #fff;
+  padding: 22px 18px;
+  display: grid;
+  gap: 16px;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  z-index: 15;
+  box-shadow: var(--shadow);
+}
+
+.menu-panel a {
+  color: #fff;
+  font-family: "Fira Sans", "Helvetica Neue", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.12rem;
+  font-size: 0.9rem;
+}
+
+.menu-panel a:hover {
+  color: #f1e7d8;
+}
+
+.menu-close {
+  justify-self: end;
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+
+body.menu-open .menu-panel {
+  transform: translateX(0);
+}
+
+body.menu-open .menu-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 8, 6, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 16;
+  padding: 24px;
+}
+
+.lightbox-dialog {
+  background: #111;
+  border-radius: 18px;
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+  max-width: min(90vw, 720px);
+  width: 100%;
+  box-shadow: var(--shadow);
+}
+
+.lightbox-image {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  background: #000;
+  object-fit: contain;
+}
+
+.lightbox-close {
+  justify-self: end;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: #fff;
+  font-family: "Fira Sans", "Helvetica Neue", sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.12rem;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.lightbox.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.product-detail {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: clamp(20px, 3vw, 36px);
+  align-items: start;
+}
+
+.product-page .product-gallery {
+  grid-template-columns: 1fr;
+}
+
+.product-gallery--slider {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #0f0d0b;
+  padding: 12px;
+}
+
+.product-slider {
+  display: flex;
+  transition: transform 0.35s ease;
+  will-change: transform;
+}
+
+.product-slide {
+  min-width: 100%;
+}
+
+.product-slide img {
+  width: 100%;
+  height: auto;
+  max-height: 70vh;
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+.gallery-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(20, 18, 16, 0.75);
+  color: #fff;
+  font-size: 1.6rem;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.gallery-prev {
+  left: 14px;
+}
+
+.gallery-next {
+  right: 14px;
+}
+
+
+.product-info {
+  display: grid;
+  gap: 14px;
+}
+
+.product-size-label {
+  display: grid;
+  gap: 8px;
+  font-family: "Fira Sans", "Helvetica Neue", sans-serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.06rem;
+  text-transform: uppercase;
+  color: #5b5147;
+}
+
+.product-size {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #e2d8c9;
+  font-family: "Fira Sans", "Helvetica Neue", sans-serif;
+  font-size: 0.95rem;
+  background: #fff;
+}
+
+.promo-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.promo-input {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #e2d8c9;
+  font-family: "Fira Sans", "Helvetica Neue", sans-serif;
+  font-size: 0.95rem;
+  background: #fff;
+}
+
+.promo-apply {
+  white-space: nowrap;
+}
+
+.promo-note {
+  font-family: "Fira Sans", "Helvetica Neue", sans-serif;
+  font-size: 0.9rem;
+  color: var(--accent-2);
+}
+
+.product-info h2 {
+  font-size: clamp(1.6rem, 1.2rem + 2vw, 2.6rem);
+  letter-spacing: 0.08rem;
+}
+
+.product-title {
+  font-family: "STIX Two Math", "Cambria Math", "Times New Roman", serif;
+}
+
+.product-price {
+  font-family: "Fira Sans", "Helvetica Neue", sans-serif;
+  font-size: clamp(1rem, 0.9rem + 0.6vw, 1.3rem);
+  color: var(--accent-2);
+}
+
+.product-details {
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  font-family: "Fira Sans", "Helvetica Neue", sans-serif;
+  color: #5b5147;
+  padding: 0;
+}
+
+.product-details li {
+  padding-left: 18px;
+  position: relative;
+}
+
+.product-details li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 14px;
-  font-size: 1.1rem;
-  letter-spacing: 0.2rem;
+  gap: 0;
+  font-size: clamp(0.95rem, 0.7rem + 0.8vw, 1.1rem);
+  letter-spacing: clamp(0.12rem, 0.08rem + 0.2vw, 0.2rem);
   text-transform: uppercase;
   font-weight: 600;
 }
 
 .logo img {
-  width: 120px;
-  height: 120px;
+  width: clamp(70px, 9vw, 120px);
+  height: clamp(70px, 9vw, 120px);
+  margin-left: clamp(90px, 10vw, 130px);
   object-fit: contain;
   filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.12));
 }
@@ -146,9 +471,9 @@ header {
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 24px;
-  font-size: 0.95rem;
-  letter-spacing: 0.08rem;
+  gap: clamp(14px, 2vw, 24px);
+  font-size: clamp(0.8rem, 0.7rem + 0.4vw, 0.95rem);
+  letter-spacing: clamp(0.05rem, 0.04rem + 0.2vw, 0.08rem);
   text-transform: uppercase;
 }
 
@@ -192,26 +517,27 @@ header {
 }
 
 .cta {
-  padding: 12px 20px;
+  padding: clamp(10px, 1.2vw, 12px) clamp(16px, 2vw, 20px);
   background: var(--coal);
   color: #fff;
   border-radius: 999px;
-  font-size: 0.9rem;
-  letter-spacing: 0.08rem;
+  font-size: clamp(0.75rem, 0.6rem + 0.4vw, 0.9rem);
+  letter-spacing: clamp(0.05rem, 0.04rem + 0.2vw, 0.08rem);
   text-transform: uppercase;
   box-shadow: var(--glow);
 }
 
 .hero {
   position: relative;
-  max-width: 1200px;
+  max-width: min(1200px, 92vw);
   margin: 0 auto;
-  padding: 90px 24px 70px;
+  padding: clamp(60px, 8vw, 90px) clamp(16px, 3vw, 24px) clamp(50px, 6vw, 70px);
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 40px;
+  gap: clamp(22px, 4vw, 40px);
   align-items: center;
   z-index: 1;
+  min-height: 100vh;
 }
 
 .hero::before,
@@ -236,33 +562,33 @@ header {
 }
 
 .hero-content h1 {
-  font-size: clamp(2.6rem, 3vw + 1.6rem, 4.6rem);
+  font-size: clamp(2rem, 2.2rem + 2.5vw, 4.6rem);
   line-height: 1.05;
-  letter-spacing: 0.04rem;
-  margin-bottom: 20px;
+  letter-spacing: clamp(0.02rem, 0.02rem + 0.2vw, 0.04rem);
+  margin-bottom: clamp(14px, 2vw, 20px);
 }
 
 .hero-content p {
   font-family: "Fira Sans", "Helvetica Neue", sans-serif;
-  font-size: 1.05rem;
+  font-size: clamp(0.95rem, 0.85rem + 0.4vw, 1.05rem);
   line-height: 1.7;
   color: #4a433b;
   max-width: 480px;
-  margin-bottom: 28px;
+  margin-bottom: clamp(18px, 2.5vw, 28px);
 }
 
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: clamp(10px, 2vw, 16px);
 }
 
 .btn-outline {
-  padding: 12px 20px;
+  padding: clamp(10px, 1.2vw, 12px) clamp(16px, 2vw, 20px);
   border-radius: 999px;
   border: 1px solid var(--coal);
-  font-size: 0.9rem;
-  letter-spacing: 0.08rem;
+  font-size: clamp(0.75rem, 0.6rem + 0.4vw, 0.9rem);
+  letter-spacing: clamp(0.05rem, 0.04rem + 0.2vw, 0.08rem);
   text-transform: uppercase;
   background: transparent;
 }
@@ -270,10 +596,21 @@ header {
 .hero-card {
   background: var(--mist);
   border-radius: 24px;
-  padding: 28px;
+  padding: clamp(18px, 2.5vw, 28px);
   box-shadow: var(--shadow);
   display: grid;
-  gap: 22px;
+  gap: clamp(14px, 2vw, 22px);
+}
+
+.hero-gallery.product-gallery--slider {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0;
+}
+
+.hero-gallery .product-slide img {
+  max-height: 75vh;
 }
 
 .hero-card img {
@@ -284,38 +621,110 @@ header {
 }
 
 .hero-card h3 {
-  font-size: 1.4rem;
-  letter-spacing: 0.12rem;
+  font-size: clamp(1.1rem, 0.9rem + 0.6vw, 1.4rem);
+  letter-spacing: clamp(0.08rem, 0.06rem + 0.2vw, 0.12rem);
   text-transform: uppercase;
 }
 
 .hero-card span {
   font-family: "Fira Sans", "Helvetica Neue", sans-serif;
-  font-size: 0.95rem;
+  font-size: clamp(0.8rem, 0.7rem + 0.4vw, 0.95rem);
   text-transform: uppercase;
-  letter-spacing: 0.12rem;
+  letter-spacing: clamp(0.08rem, 0.06rem + 0.2vw, 0.12rem);
   color: var(--accent-2);
 }
 
-.section {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 80px 24px;
+
+.welcome-banner {
+  max-width: min(1200px, 92vw);
+  margin: clamp(20px, 4vw, 40px) auto 0;
+  padding: clamp(40px, 6vw, 72px) clamp(24px, 5vw, 48px);
+  border-radius: 28px;
+  color: #fff;
+  background-image: url("Produit/Produit/banniere.png");
+  background-size: cover;
+  background-position: center;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.welcome-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(10, 8, 6, 0.72), rgba(10, 8, 6, 0.2));
+  z-index: 0;
+}
+
+.welcome-banner__content {
   position: relative;
   z-index: 1;
+  max-width: 520px;
+  display: grid;
+  gap: clamp(10px, 2vw, 14px);
+}
+
+.welcome-banner__eyebrow {
+  font-family: "Fira Sans", "Helvetica Neue", sans-serif;
+  font-size: clamp(0.7rem, 0.6rem + 0.4vw, 0.85rem);
+  letter-spacing: clamp(0.12rem, 0.1rem + 0.2vw, 0.2rem);
+  text-transform: uppercase;
+}
+
+.welcome-banner h2 {
+  font-size: clamp(1.6rem, 1.2rem + 2.2vw, 3.2rem);
+  line-height: 1.1;
+  letter-spacing: clamp(0.05rem, 0.04rem + 0.2vw, 0.08rem);
+}
+
+.welcome-banner p {
+  font-family: "Fira Sans", "Helvetica Neue", sans-serif;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.6;
+}
+
+.welcome-banner .cta {
+  justify-self: start;
+  background: #fff;
+  color: var(--coal);
+}
+
+@media (max-width: 700px) {
+  .welcome-banner {
+    padding: 48px 28px;
+    text-align: center;
+  }
+
+  .welcome-banner__content {
+    justify-items: center;
+  }
+}
+
+
+.section {
+  max-width: min(1200px, 92vw);
+  margin: 0 auto;
+  padding: clamp(50px, 8vw, 80px) clamp(16px, 3vw, 24px);
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .section-header {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 40px;
+  gap: clamp(14px, 2vw, 20px);
+  margin-bottom: clamp(24px, 4vw, 40px);
 }
 
 .section-header h2 {
-  font-size: clamp(2rem, 2.2vw + 1rem, 3rem);
-  letter-spacing: 0.08rem;
+  font-size: clamp(1.6rem, 1.2rem + 2vw, 3rem);
+  letter-spacing: clamp(0.05rem, 0.04rem + 0.2vw, 0.08rem);
 }
 
 .section-header p {
@@ -323,33 +732,34 @@ header {
   max-width: 420px;
   line-height: 1.6;
   color: #5b5147;
+  font-size: clamp(0.9rem, 0.8rem + 0.4vw, 1rem);
 }
 
 .cart-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 32px;
+  gap: clamp(18px, 3vw, 32px);
   align-items: start;
 }
 
 .cart-panel {
   background: rgba(255, 255, 255, 0.8);
   border-radius: 22px;
-  padding: 28px;
+  padding: clamp(18px, 2.5vw, 28px);
   box-shadow: var(--shadow);
 }
 
 .cart-panel h3,
 .checkout-form h3 {
-  font-size: 1.4rem;
-  letter-spacing: 0.12rem;
+  font-size: clamp(1.1rem, 0.9rem + 0.6vw, 1.4rem);
+  letter-spacing: clamp(0.08rem, 0.06rem + 0.2vw, 0.12rem);
   text-transform: uppercase;
-  margin-bottom: 18px;
+  margin-bottom: clamp(12px, 2vw, 18px);
 }
 
 .cart-items {
   display: grid;
-  gap: 14px;
+  gap: clamp(10px, 2vw, 14px);
 }
 
 .cart-empty {
@@ -359,33 +769,33 @@ header {
 
 .cart-item {
   display: grid;
-  gap: 10px;
-  padding: 14px;
+  gap: clamp(8px, 1.5vw, 10px);
+  padding: clamp(10px, 2vw, 14px);
   border-radius: 14px;
   border: 1px solid #efe6d7;
   background: #fff;
 }
 
 .cart-item h4 {
-  font-size: 1rem;
-  letter-spacing: 0.08rem;
+  font-size: clamp(0.85rem, 0.75rem + 0.4vw, 1rem);
+  letter-spacing: clamp(0.05rem, 0.04rem + 0.2vw, 0.08rem);
   text-transform: uppercase;
 }
 
 .cart-controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: clamp(8px, 1.5vw, 10px);
   align-items: center;
 }
 
 .cart-controls select,
 .cart-controls button {
-  padding: 8px 10px;
+  padding: clamp(7px, 1vw, 8px) clamp(8px, 1.5vw, 10px);
   border-radius: 10px;
   border: 1px solid #e2d8c9;
   font-family: "Fira Sans", "Helvetica Neue", sans-serif;
-  font-size: 0.85rem;
+  font-size: clamp(0.75rem, 0.7rem + 0.3vw, 0.85rem);
   background: #fff;
 }
 
@@ -400,37 +810,38 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 18px;
+  margin-top: clamp(12px, 2vw, 18px);
   font-family: "Fira Sans", "Helvetica Neue", sans-serif;
-  font-size: 1rem;
+  font-size: clamp(0.9rem, 0.8rem + 0.4vw, 1rem);
 }
 
 .checkout-form {
   background: #fff;
   border-radius: 22px;
-  padding: 28px;
+  padding: clamp(18px, 2.5vw, 28px);
   box-shadow: var(--shadow);
   display: grid;
-  gap: 16px;
+  gap: clamp(12px, 2vw, 16px);
 }
 
 .checkout-form label {
   display: grid;
-  gap: 8px;
+  gap: clamp(6px, 1vw, 8px);
   font-family: "Fira Sans", "Helvetica Neue", sans-serif;
-  font-size: 0.9rem;
-  letter-spacing: 0.06rem;
+  font-size: clamp(0.8rem, 0.7rem + 0.3vw, 0.9rem);
+  letter-spacing: clamp(0.04rem, 0.03rem + 0.2vw, 0.06rem);
   text-transform: uppercase;
   color: #5b5147;
 }
 
 .checkout-form input,
 .checkout-form select {
-  padding: 12px 14px;
+  padding: clamp(10px, 1.5vw, 12px) clamp(12px, 2vw, 14px);
   border-radius: 12px;
   border: 1px solid #e2d8c9;
   font-family: "Fira Sans", "Helvetica Neue", sans-serif;
-  font-size: 0.95rem;
+  font-size: clamp(0.85rem, 0.75rem + 0.3vw, 0.95rem);
+  background: #fff;
 }
 
 .checkout-form button {
@@ -445,23 +856,23 @@ header {
 
 .cart-note {
   font-family: "Fira Sans", "Helvetica Neue", sans-serif;
-  font-size: 0.85rem;
+  font-size: clamp(0.75rem, 0.65rem + 0.3vw, 0.85rem);
   color: #6a5f55;
 }
 
 .products {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 24px;
+  gap: clamp(16px, 3vw, 24px);
 }
 
 .product-card {
   background: #fff;
   border-radius: 20px;
-  padding: 20px;
+  padding: clamp(16px, 2.5vw, 20px);
   box-shadow: 0 18px 40px rgba(10, 8, 6, 0.12);
   display: grid;
-  gap: 18px;
+  gap: clamp(12px, 2vw, 18px);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -474,31 +885,96 @@ header {
   width: 100%;
   border-radius: 16px;
   object-fit: cover;
-  background: #f8f5f0;
+  background: #0b0b0c;
+  max-height: 70vh;
+  height: auto;
+  object-fit: contain;
+}
+
+.product-card--clickable {
+  cursor: pointer;
+}
+
+.product-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.product-image-link {
+  display: block;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.product-image-link img {
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.product-image-link:hover img {
+  transform: scale(1.03);
 }
 
 .product-card h3 {
-  font-size: 1.2rem;
-  letter-spacing: 0.08rem;
+  font-size: clamp(1rem, 0.85rem + 0.5vw, 1.2rem);
+  letter-spacing: clamp(0.05rem, 0.04rem + 0.2vw, 0.08rem);
   text-transform: uppercase;
 }
 
 .product-meta {
   font-family: "Fira Sans", "Helvetica Neue", sans-serif;
-  font-size: 0.9rem;
+  font-size: clamp(0.8rem, 0.7rem + 0.3vw, 0.9rem);
   color: #6a5f55;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+.contact-card .product-meta {
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.contact-row a {
+  color: inherit;
+}
+
+.contact-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sand);
+  border: 1px solid var(--sand-deep);
+  color: var(--accent-2);
+}
+
+.contact-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
 .btn-cart {
-  padding: 12px 18px;
+  padding: clamp(10px, 1.2vw, 12px) clamp(14px, 2vw, 18px);
   border-radius: 999px;
   border: 1px solid var(--coal);
   background: transparent;
-  font-size: 0.85rem;
-  letter-spacing: 0.08rem;
+  font-size: clamp(0.72rem, 0.65rem + 0.3vw, 0.85rem);
+  letter-spacing: clamp(0.05rem, 0.04rem + 0.2vw, 0.08rem);
   text-transform: uppercase;
   cursor: pointer;
   transition: background 0.3s ease, color 0.3s ease;
@@ -515,71 +991,91 @@ header {
   background: var(--sand);
   border: 1px solid var(--sand-deep);
   text-transform: uppercase;
-  letter-spacing: 0.08rem;
-  font-size: 0.7rem;
+  letter-spacing: clamp(0.05rem, 0.04rem + 0.2vw, 0.08rem);
+  font-size: clamp(0.6rem, 0.55rem + 0.2vw, 0.7rem);
 }
 
 .story {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 32px;
+  gap: clamp(20px, 3vw, 32px);
   align-items: center;
   background: rgba(255, 255, 255, 0.7);
   border-radius: 28px;
-  padding: 40px;
+  padding: clamp(24px, 4vw, 40px);
   box-shadow: var(--shadow);
 }
 
+.story-media {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.story-media img {
+  width: 100%;
+  height: auto;
+  max-height: clamp(320px, 60vw, 520px);
+  object-fit: contain;
+  border-radius: 18px;
+  background: #f8f5f0;
+  box-shadow: 0 12px 24px rgba(10, 8, 6, 0.12);
+}
+
 .story h3 {
-  font-size: 1.8rem;
-  margin-bottom: 14px;
+  font-size: clamp(1.3rem, 1rem + 1vw, 1.8rem);
+  margin-bottom: clamp(10px, 2vw, 14px);
 }
 
 .story p {
   font-family: "Fira Sans", "Helvetica Neue", sans-serif;
   line-height: 1.7;
   color: #4f463d;
+  font-size: clamp(0.9rem, 0.8rem + 0.3vw, 1rem);
 }
 
 .story-list {
   display: grid;
-  gap: 12px;
+  gap: clamp(8px, 1.5vw, 12px);
   font-family: "Fira Sans", "Helvetica Neue", sans-serif;
   color: #5b5147;
+  font-size: clamp(0.85rem, 0.75rem + 0.3vw, 0.95rem);
 }
 
 .highlight {
   background: var(--coal);
   color: #fff;
   border-radius: 20px;
-  padding: 32px;
+  padding: clamp(20px, 3vw, 32px);
   display: grid;
-  gap: 18px;
+  gap: clamp(12px, 2vw, 18px);
   box-shadow: var(--shadow);
 }
 
 .highlight h4 {
-  font-size: 1.2rem;
+  font-size: clamp(1rem, 0.9rem + 0.5vw, 1.2rem);
   text-transform: uppercase;
-  letter-spacing: 0.16rem;
+  letter-spacing: clamp(0.1rem, 0.08rem + 0.2vw, 0.16rem);
 }
 
 .highlight p {
   font-family: "Fira Sans", "Helvetica Neue", sans-serif;
   line-height: 1.7;
   color: rgba(255, 255, 255, 0.8);
+  font-size: clamp(0.9rem, 0.8rem + 0.3vw, 1rem);
 }
 
 .footer {
-  padding: 40px 24px 60px;
+  padding: clamp(28px, 4vw, 40px) clamp(16px, 3vw, 24px) clamp(40px, 6vw, 60px);
   background: #141210;
   color: #f5f0e8;
   text-align: center;
   font-family: "Fira Sans", "Helvetica Neue", sans-serif;
-  letter-spacing: 0.08rem;
+  letter-spacing: clamp(0.05rem, 0.04rem + 0.2vw, 0.08rem);
   text-transform: uppercase;
-  font-size: 0.8rem;
+  font-size: clamp(0.7rem, 0.6rem + 0.3vw, 0.8rem);
 }
+
 
 .is-ready .hero,
 .is-ready .section {

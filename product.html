@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Choufli_9ach | Boutique Officielle</title>
+  <title>Promise Black | Choufli_9ach</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -49,62 +49,81 @@
       </div>
     </header>
 
-    
+    <div class="back-link">
+      <a href="javascript:history.back()" aria-label="Retour a la page precedente">&larr; Retour</a>
+    </div>
 
     <main id="contenu">
-      <section class="welcome-banner" aria-label="Banniere d'accueil">
-        <div class="welcome-banner__content">
-          <p class="welcome-banner__eyebrow">Nouvelle collection</p>
-          <h2>Decouvre notre piece signature.</h2>
-          <p>Edition limitee, textile premium, coupe nette.</p>
-          <a class="cta" href="collections.html">Shop Now</a>
-        </div>
-      </section>
-
-      <section class="hero">
-        <div class="hero-content">
-          <h1>Hoodies premium qui racontent une histoire.</h1>
-          <p>
-            Choufli_9ach lance une ligne urbaine elegante, textile dense, coupes nettes,
-            couleurs pensees pour durer. Un univers sobre, confiant et memorisable.
-          </p>
-          <div class="hero-actions">
-            <a class="cta" href="collections.html">Decouvrir la collection</a>
-            <a class="btn-outline" href="story.html">Notre manifeste</a>
-          </div>
-        </div>
-        <div class="hero-gallery product-gallery--slider" aria-label="Galerie accueil">
-          <button class="gallery-nav gallery-prev" type="button" aria-label="Image precedente">&#8249;</button>
-          <div class="product-slider">
-            <div class="product-slide">
-              <img
-                src="Produit/Produit/model%20front.jpeg"
-                alt="Model front"
-                fetchpriority="high"
-                decoding="async"
-              />
+      <section class="section product-page">
+        <div class="product-detail">
+          <div class="product-gallery product-gallery--slider" aria-label="Galerie produit">
+            <button class="gallery-nav gallery-prev" type="button" aria-label="Image precedente">&#8249;</button>
+            <div class="product-slider">
+              <div class="product-slide">
+                <img
+                  src="Produit/Produit/produit%20final%20front.jpeg"
+                  alt="Produit final front"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <div class="product-slide">
+                <img
+                  src="Produit/Produit/produit%20final.jpeg"
+                  alt="Produit final"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
             </div>
-            <div class="product-slide">
-              <img
-                src="Produit/Produit/model%20back.jpeg"
-                alt="Model back"
-                fetchpriority="high"
-                decoding="async"
-              />
-            </div>
+            <button class="gallery-nav gallery-next" type="button" aria-label="Image suivante">&#8250;</button>
           </div>
-          <button class="gallery-nav gallery-next" type="button" aria-label="Image suivante">&#8250;</button>
+          <div class="product-info">
+            <h2 class="product-title">&#x1d4af;&#x1d4b0;&#x1d4a9;&#x2110;&#x1d4ae;&#x2110;&#x1d4a9;&#x1d4aa;&#x20;&#x2d;&#x20;&#x1d4af;&#x1d4bd;&#x212f;&#x20;&#x212c;&#x2134;&#x1d4c8;&#x1d4c8;&#x1d4c5;&#x1d4be;&#x212f;&#x1d4b8;&#x212f;</h2>
+            <p class="product-price" data-base-price="99">99 TND</p>
+            <p class="promo-note" id="promoNote" aria-live="polite"></p>
+            <p>
+              Hoodie premium, finition propre, coupe moderne. Edition limitee.
+            </p>
+            <label class="product-size-label">
+              Taille
+              <select class="product-size" name="size">
+                <option value="S">S</option>
+                <option value="M">M</option>
+                <option value="L">L</option>
+                <option value="XL">XL</option>
+              </select>
+            </label>
+            <div class="promo-row">
+              <input class="promo-input" id="promoCode" type="text" placeholder="Code promo" />
+              <button class="btn-outline promo-apply" id="promoApply" type="button">Appliquer</button>
+            </div>
+            <button
+              class="btn-cart btn-add-cart"
+              type="button"
+              data-product="TUNISINO - The Bosspiece"
+              data-price="99"
+            >
+              Ajouter au panier
+            </button>
+            <ul class="product-details">
+              <li>Textile epais 400g</li>
+              <li>Tailles disponibles: S, M, L, XL</li>
+              <li>Livraison rapide, paiement a la livraison</li>
+            </ul>
+            <a class="btn-outline" href="collections.html">Retour collection</a>
+          </div>
         </div>
       </section>
     </main>
 
     <section class="section" id="contact">
-        <div class="section-header">
-          <h2>Reste en contact</h2>
-          <p>Pour les commandes, collaborations ou points de vente, ecris nous.</p>
-        </div>
-        <div class="products">
-                              <article class="product-card contact-card">
+      <div class="section-header">
+        <h2>Reste en contact</h2>
+        <p>Pour les commandes, collaborations ou points de vente, ecris nous.</p>
+      </div>
+      <div class="products">
+                            <article class="product-card contact-card">
             <h3>Contact</h3>
             <p class="product-meta contact-row">
               <span class="contact-icon" aria-hidden="true">
@@ -137,19 +156,20 @@
               21306003 / 51142274
             </p>
           </article>
-          <article class="product-card">
-            <h3>Livraison</h3>
-            <p class="product-meta">Paiement a la livraison disponible</p>
-            <p class="product-meta">Retour sous 7 jours</p>
-          </article>
-          <article class="product-card">
-            <h3>Stock limite</h3>
-            <p class="product-meta">Chaque drop est numerote</p>
-            <p class="product-meta">Reservez votre piece</p>
-            <p class="product-meta">Tailles disponibles: S, M, L, XL</p>
-          </article>
-        </div>
-      </section>
+        <article class="product-card">
+          <h3>Livraison</h3>
+          <p class="product-meta">Paiement a la livraison disponible</p>
+          <p class="product-meta">Retour sous 7 jours</p>
+        </article>
+        <article class="product-card">
+          <h3>Stock limite</h3>
+          <p class="product-meta">Chaque drop est numerote</p>
+          <p class="product-meta">Reservez votre piece</p>
+          <p class="product-meta">Tailles disponibles: S, M, L, XL</p>
+        </article>
+      </div>
+    </section>
+
     <footer class="footer">
       Choufli_9ach - Boutique Officielle
     </footer>

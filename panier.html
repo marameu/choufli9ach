@@ -49,54 +49,72 @@
       </div>
     </header>
 
-    
+    <div class="back-link">
+      <a href="javascript:history.back()" aria-label="Retour a la page precedente">&larr; Retour</a>
+    </div>
 
     <main id="contenu">
-      <section class="welcome-banner" aria-label="Banniere d'accueil">
-        <div class="welcome-banner__content">
-          <p class="welcome-banner__eyebrow">Nouvelle collection</p>
-          <h2>Decouvre notre piece signature.</h2>
-          <p>Edition limitee, textile premium, coupe nette.</p>
-          <a class="cta" href="collections.html">Shop Now</a>
+      <section class="section" id="panier">
+        <div class="section-header">
+          <h2>Votre panier</h2>
+          <p>Finalise ta commande en quelques clics. Paiement a la livraison.</p>
         </div>
-      </section>
-
-      <section class="hero">
-        <div class="hero-content">
-          <h1>Hoodies premium qui racontent une histoire.</h1>
-          <p>
-            Choufli_9ach lance une ligne urbaine elegante, textile dense, coupes nettes,
-            couleurs pensees pour durer. Un univers sobre, confiant et memorisable.
-          </p>
-          <div class="hero-actions">
-            <a class="cta" href="collections.html">Decouvrir la collection</a>
-            <a class="btn-outline" href="story.html">Notre manifeste</a>
-          </div>
-        </div>
-        <div class="hero-gallery product-gallery--slider" aria-label="Galerie accueil">
-          <button class="gallery-nav gallery-prev" type="button" aria-label="Image precedente">&#8249;</button>
-          <div class="product-slider">
-            <div class="product-slide">
-              <img
-                src="Produit/Produit/model%20front.jpeg"
-                alt="Model front"
-                fetchpriority="high"
-                decoding="async"
-              />
+        <div class="cart-grid">
+          <div class="cart-panel">
+            <h3>Articles</h3>
+            <div class="cart-items" id="cartItems">
+              <p class="cart-empty">Ton panier est vide pour le moment.</p>
             </div>
-            <div class="product-slide">
-              <img
-                src="Produit/Produit/model%20back.jpeg"
-                alt="Model back"
-                fetchpriority="high"
-                decoding="async"
-              />
+            <div class="cart-total">
+              <span>Total</span>
+              <strong id="cartTotal" aria-live="polite">0 TND</strong>
             </div>
+            <div class="cart-total">
+              <span>Frais de livraison</span>
+              <strong id="shippingFee">0 TND</strong>
+            </div>
+            <div class="cart-total">
+              <span>Total avec livraison</span>
+              <strong id="cartGrandTotal" aria-live="polite">0 TND</strong>
+            </div>
+            <p class="cart-note">Tailles disponibles: S, M, L, XL.</p>
           </div>
-          <button class="gallery-nav gallery-next" type="button" aria-label="Image suivante">&#8250;</button>
+          <form class="checkout-form" id="checkoutForm">
+            <h3>Finaliser la commande</h3>
+            <label>
+              Nom complet
+              <input type="text" name="name" placeholder="Ton nom" autocomplete="name" required />
+            </label>
+            <label>
+              Telephone
+              <input
+                type="tel"
+                name="phone"
+                placeholder="+216 xx xxx xxx"
+                autocomplete="tel"
+                inputmode="tel"
+                pattern="(?:\+216\s?)?[0-9]{8}"
+                title="Entrez un numero valide (8 chiffres, avec +216 optionnel)."
+                required
+              />
+            </label>
+            <label>
+              Adresse de livraison
+              <input
+                type="text"
+                name="address"
+                placeholder="Ville, rue, details"
+                autocomplete="street-address"
+                required
+              />
+            </label>
+            <button class="cta" type="submit">Confirmer</button>
+            <p class="cart-note">Paiement a la livraison uniquement.</p>
+          </form>
         </div>
       </section>
     </main>
+  <script src="script.js" defer></script>
 
     <section class="section" id="contact">
         <div class="section-header">
@@ -154,6 +172,5 @@
       Choufli_9ach - Boutique Officielle
     </footer>
   </div>
-  <script src="script.js" defer></script>
 </body>
 </html>
