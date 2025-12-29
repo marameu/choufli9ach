@@ -255,6 +255,32 @@
     });
   }
 
+  const orderEndpoints = [
+    "/api/orders",
+    "https://script.google.com/macros/s/AKfycbxssDv9ayTHWt2paeP6fBkpxVQnal6MBbbUbbAijqhCSuq6pMOtKEUIndmz-ZjmJ5if/exec",
+  ];
+
+  const sendOrder = async (payload) => {
+    const results = await Promise.allSettled(
+      orderEndpoints.map(async (url) => {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!response.ok) {
+          throw new Error(`Order failed: ${url}`);
+        }
+        return response;
+      })
+    );
+    const successCount = results.filter((item) => item.status === "fulfilled").length;
+    if (successCount === 0) {
+      throw new Error("Order failed");
+    }
+    return successCount;
+  };
+
   if (checkoutForm) {
     checkoutForm.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -275,17 +301,12 @@
 
       if (checkoutButton) checkoutButton.disabled = true;
       try {
-        const response = await fetch("/api/orders", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-
-        if (!response.ok) {
-          throw new Error("Order failed");
+        const successCount = await sendOrder(payload);
+        if (successCount < orderEndpoints.length) {
+          alert("Commande enregistree, mais une copie n'a pas pu etre envoyee.");
+        } else {
+          alert("Merci ! Votre commande est enregistree. Paiement a la livraison.");
         }
-
-        alert("Merci ! Votre commande est enregistree. Paiement a la livraison.");
         checkoutForm.reset();
         cartItems.length = 0;
         saveCart();
