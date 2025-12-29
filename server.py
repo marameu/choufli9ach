@@ -263,8 +263,12 @@ class RequestHandler(BaseHTTPRequestHandler):
         if self.path.startswith("/admin"):
             if not is_authorized(self):
                 self.send_response(HTTPStatus.UNAUTHORIZED)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
                 self.send_header("WWW-Authenticate", 'Basic realm="Admin"')
                 self.end_headers()
+                self.wfile.write(
+                    b"<h1>Acces admin</h1><p>Identifiant: admin</p><p>Mot de passe: celui configure sur Render.</p>"
+                )
                 return
             self.handle_admin_page()
             return
@@ -295,8 +299,10 @@ class RequestHandler(BaseHTTPRequestHandler):
         if self.path.startswith("/admin/delete"):
             if not is_authorized(self):
                 self.send_response(HTTPStatus.UNAUTHORIZED)
+                self.send_header("Content-Type", "text/plain; charset=utf-8")
                 self.send_header("WWW-Authenticate", 'Basic realm="Admin"')
                 self.end_headers()
+                self.wfile.write(b"Unauthorized")
                 return
             self.handle_delete_order()
             return
